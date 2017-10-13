@@ -71,10 +71,6 @@
     (when (or (nil? (project key)) (re-find #"FIXME" (str (project key))))
       (main/info "WARNING: please set" key "in project.clj."))))
 
-
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Given a single key  k from the aether/deploy artifacts map  and a string s,
 ;; append  s to  the original  version  string. The  key  is a  vector of  the
@@ -106,35 +102,36 @@
     (clojure.set/rename-keys files (zipmap oldkeys newkeys)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;; Main entry point. This is the  function called when invoking from terminal:
+;; 'lein deploy-uberjar'.
 
 (defn deploy-uberjar
   "Build uberjar and deploy to remote repository.
 
-The target repository will be looked up in :repositories in project.clj:
+  The target repository will be looked up in :repositories in project.clj:
 
   :repositories [[\"snapshots\" \"https://internal.repo/snapshots\"]
                  [\"releases\" \"https://internal.repo/releases\"]
                  [\"alternate\" \"https://other.server/repo\"]]
 
-If you don't provide a repository name to deploy to, either \"snapshots\" or
-\"releases\" will be used depending on your project's current version. See
-`lein help deploying` under \"Authentication\" for instructions on how to
-configure your credentials so you are not prompted on each deploy."
+  If you don't provide a repository name to deploy to, either \"snapshots\" or
+  \"releases\" will be used depending on your project's current version. See
+  `lein help deploying` under \"Authentication\" for instructions on how to
+  configure your credentials so you are not prompted on each deploy."
   ([project repository-name]
-     (warn-missing-metadata project)
-     (let [repo (repo-for project repository-name)
+   (warn-missing-metadata project)
+   (let [repo (repo-for project repository-name)
          files (update-artifact-keys (files-for project repo))]
-       (try
-         (main/debug "Deploying" files "to" repo)
-         (aether/deploy-artifacts :artifacts (keys files)
-                                  :files files
-                                  :transfer-listener :stdout
-                                  :repository [repo])
-         (catch org.sonatype.aether.deployment.DeploymentException e
-           (when main/*debug* (.printStackTrace e))
-           (main/abort (abort-message (.getMessage e)))))))
+     (try
+       (main/debug "Deploying" files "to" repo)
+       (aether/deploy-artifacts :artifacts (keys files)
+                                :files files
+                                :transfer-listener :stdout
+                                :repository [repo])
+       (catch org.sonatype.aether.deployment.DeploymentException e
+         (when main/*debug* (.printStackTrace e))
+         (main/abort (abort-message (.getMessage e)))))))
   ([project]
-     (deploy-uberjar project (if (pom/snapshot? project)
-                               "snapshots"
-                               "releases"))))
+   (deploy-uberjar project (if (pom/snapshot? project)
+                             "snapshots"
+                             "releases"))))
