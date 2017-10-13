@@ -70,6 +70,40 @@
     (when (or (nil? (project key)) (re-find #"FIXME" (str (project key))))
       (main/info "WARNING: please set" key "in project.clj."))))
 
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; takes a single key k from a aether/deploy artifacts maps
+  ;; and a string s to be added as version suffix.
+;; One k in aether artifacts map.
+
+(defn- add-version-suffix
+  ;; The default suffix is 'standalone'.
+  ([k] (add-version-suffix k "-standalone"))
+  ;; General version: specify a suffix s.
+  ([k s]
+   ;; Version is the 2nd element (index 1) in the key (vector).
+   (assoc k 1 (str (nth k 1) s))))
+
+(defn- update-artifact-keys [files suffix]
+  (let [oldkeys (keys files)
+        newkeys (into [] (map #(add-version-suffix % suffix) oldkeys))]
+    ;; (println "")
+    ;; (println (str "OLD: " (type oldkeys) "  " oldkeys))
+    ;; (println "")
+    ;; (println (str "NEW: " (type newkeys) "  " newkeys))
+    ;; (println "")
+    ;; (println (str "ZIP: " (type (zipmap oldkeys newkeys)) "  " (zipmap oldkeys newkeys)))
+    ;; (println "")
+    (clojure.set/rename-keys files (zipmap oldkeys newkeys))
+    ))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 (defn deploy-uberjar
   "Build uberjar and deploy to remote repository.
 
@@ -86,7 +120,7 @@ configure your credentials so you are not prompted on each deploy."
   ([project repository-name]
      (warn-missing-metadata project)
      (let [repo (repo-for project repository-name)
-           files (files-for project repo)]
+         files (update-artifact-keys (files-for project repo))]
        (try
          (main/debug "Deploying" files "to" repo)
          (aether/deploy-artifacts :artifacts (keys files)
