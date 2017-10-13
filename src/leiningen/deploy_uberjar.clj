@@ -92,20 +92,18 @@
      (assoc k 1 (str (nth k 1) s)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
+;; Given the aether/deploy artifacts map 'files' and a modifer function 'modf'
+;; map the function on the keys and  return the artifacts map with the updated
+;; keys.    Function  modf   is  optional;   its  default   behaviour  is   to
+;; append "standalone"  to the versions; to  append a different string  to the
+;; versions pass as modf:  #(add-version-suffix % "mystring").
 
-(defn- update-artifact-keys [files suffix]
-  (let [oldkeys (keys files)
-        newkeys (into [] (map #(add-version-suffix % suffix) oldkeys))]
-    ;; (println "")
-    ;; (println (str "OLD: " (type oldkeys) "  " oldkeys))
-    ;; (println "")
-    ;; (println (str "NEW: " (type newkeys) "  " newkeys))
-    ;; (println "")
-    ;; (println (str "ZIP: " (type (zipmap oldkeys newkeys)) "  " (zipmap oldkeys newkeys)))
-    ;; (println "")
-    (clojure.set/rename-keys files (zipmap oldkeys newkeys))
-    ))
+(defn- update-artifact-keys
+  ([files] (update-artifact-keys files add-version-suffix))
+  ([files modf]
+   (let [oldkeys (keys files)
+         newkeys (into [] (map modf oldkeys))]
+    (clojure.set/rename-keys files (zipmap oldkeys newkeys)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
