@@ -43,8 +43,7 @@
                          :when (= id name)] settings)]
     (-> [name settings]
         (classpath/add-repo-auth)
-        (add-auth-interactively)
-        )))
+        (add-auth-interactively))))
 
 (defn sign [file]
   (let [exit (binding [*out* (java.io.StringWriter.)]
@@ -77,18 +76,23 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; takes a single key k from a aether/deploy artifacts maps
-  ;; and a string s to be added as version suffix.
-;; One k in aether artifacts map.
+;; Given a single key  k from the aether/deploy artifacts map  and a string s,
+;; append  s to  the original  version  string. The  key  is a  vector of  the
+;; form:  [ART-GROUP/ART-ID  VERSION :extension  EXT].  The  suffix string  is
+;; optional and defaults to "standalone".
 
 (defn- add-version-suffix
   ;; The default suffix is 'standalone'.
-  ([k] (add-version-suffix k "-standalone"))
+  ([k] (add-version-suffix k "standalone"))
   ;; General version: specify a suffix s.
   ([k s]
+   ;; If necessary prepend "-" to the suffix.
+   (let [s (if (= (subs s 0 1) "-") s (str "-" s))]
    ;; Version is the 2nd element (index 1) in the key (vector).
-   (assoc k 1 (str (nth k 1) s))))
+     (assoc k 1 (str (nth k 1) s)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 
 (defn- update-artifact-keys [files suffix]
   (let [oldkeys (keys files)
