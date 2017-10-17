@@ -32,26 +32,13 @@ cd lein-deploy-uberjar
 lein install
 ```
 
-Modify your project's `project.clj` file, adding the plugin to the `:plugins` section:
-
-```clojure
-:plugins [[lein-deploy-uberjar/lein-deploy-uberjar "2.1.0"]]
+Optionally, before `lein install`, you can run the tests. Note that currently the test suite is not comprehensive and only covers functions added since the project was last forked.
+```bash
+lein test
 ```
 
-### Repositories
-
-Artifact repositories must be specified inside `project.clj`, using either `:repositories` or `:deploy-repositories`. For instance, to specifiy a repository hosted on S3, bucket `my-s3-bucket`:
-
-```clojure
-:repositories [["snapshots" {:url "s3p://my-s3-bucket/snapshots" :no-auth true}]
-               ["releases" {:url "s3p://my-s3-bucket/releases" :no-auth true}]] 
-```
-
-Use of URLs like the above requires the [s3-wagon-private plugin](https://github.com/s3-wagon-private/s3-wagon-private), which must be added to `project.clj` like so:
-
-```clojure
 :plugins [[s3-wagon-private "1.3.0"]
-          [lein-deploy-uberjar/lein-deploy-uberjar "2.0.1"]]
+          ...] ;; Other plugins
 ```
 
 ### Uberjar deployment
