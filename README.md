@@ -4,6 +4,9 @@ A Leiningen plugin to deploy _uberjars_ (or _fat jars_) to a Maven repository.
 
 This plugin supports explicitly skipping authentication methods supported natively by Leiningen and delegating authentication to the Amazon Web Services [Default Credential Provider Chain](http://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html). This enables deploying uberjars to a private repository hosted on S3, in combination with [this other plugin](https://github.com/s3-wagon-private/s3-wagon-private).
 
+[![Clojars Project](https://img.shields.io/clojars/v/org.ammazza/lein-deploy-uberjar.svg)](https://clojars.org/org.ammazza/lein-deploy-uberjar)
+<!--- [![Clojars Project](https://clojars.org/org.ammazza/lein-deploy-uberjar/latest-version.svg)](https://clojars.org/org.ammazza/lein-deploy-uberjar) --->
+
 ## License
 
 Copyright (C) 2012 Utah Street Labs
@@ -22,9 +25,18 @@ This is a plugin for Leiningen, an awesome build tool for [Clojure](https://cloj
 
 ### Installation
 
-This plugin is currently not distributed in binary form (soon to come!). To use it you will have to download and build the source code and install the compiled plugin manually in your local maven cache (e.g. `~/.m2/repository` on GNU/Linux systems).
+This plugin is distributed in binary form through [Clojars](https://clojars.org/), which is automatically searched for dependencies by Leiningen.
 
-Assuming Leiningen (`lein` command) is already installed in your system, issue the following commands in a terminal:
+All you need to get going it to modify your project's `project.clj` file, adding the plugin to the `:plugins` section:
+
+```clojure
+:plugins [[org.ammazza/lein-deploy-uberjar "2.1.0"]
+          ...] ;; Other plugins
+```
+
+#### Installing from the sources
+
+If you're interested in installing this plugin from its source code, assuming Leiningen (`lein` command) is already installed on your system, issue the following commands in a terminal:
 
 ```bash
 git clone https://github.com/ammazza/lein-deploy-uberjar.git
@@ -32,15 +44,12 @@ cd lein-deploy-uberjar
 lein install
 ```
 
+The last command will install the plugin in your local maven cache (e.g. `~/.m2/repository` on GNU/Linux systems).
+
 Optionally, before `lein install`, you can run the tests. Note that currently the test suite is not comprehensive and only covers functions added since the project was last forked.
+
 ```bash
 lein test
-```
-
-Modify your project's `project.clj` file, adding the plugin to the `:plugins` section:
-
-```clojure
-:plugins [[lein-deploy-uberjar/lein-deploy-uberjar "2.1.0"]]
 ```
 
 ### Repositories
@@ -70,6 +79,4 @@ lein deploy-uberjar [repository]
 The optional `repository` is the label assigned in the `:repositories` configuration, i.e. the string before the URL (_snapshots_ and _releases_ in the example above). If no repository is specified, the suffix _-SNAPSHOT_ in the version string will be used to identify snapshots.
 
 Note that this plugin appends the qualifier _-stanalone to the uberjars. As a consequence snapshot uberjars will not be timestamped. The idea is that only one uberjar is ever available, with the latest deployment. This behaviour is intentional and limits space consumption on the repository. It may become configurable in the future.
-
-
 
