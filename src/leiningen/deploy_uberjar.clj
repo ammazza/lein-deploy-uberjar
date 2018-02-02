@@ -9,7 +9,8 @@
             [clojure.java.io :as io]
             [leiningen.pom :as pom]
             [leiningen.jar :as jar]
-            [leiningen.uberjar :as uberjar]))
+            [leiningen.uberjar :as uberjar])
+  (:import [org.sonatype.aether.deployment DeploymentException]))
 
 (defn- abort-message [message]
   (cond (re-find #"Return code is 405" message)
@@ -128,7 +129,7 @@
                                 :files files
                                 :transfer-listener :stdout
                                 :repository [repo])
-       (catch org.sonatype.aether.deployment.DeploymentException e
+       (catch DeploymentException e
          (when main/*debug* (.printStackTrace e))
          (main/abort (abort-message (.getMessage e)))))))
   ([project]
